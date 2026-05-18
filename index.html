@@ -172,7 +172,7 @@ body{background:#0a0f14;font-family:'Roboto',sans-serif;display:flex;justify-con
 /* ══════════════════════════════════════════
    ①  CONFIG  — edit these two lines
    ══════════════════════════════════════════ */
-const GAS  = 'AKfycbz138Mm9x5hrADoyRzVYyLnZHDcnAxwsIpT36Cdwjzf2TjUxz_iigKZc8jtepeYosRu';
+const GAS  = 'const GAS  = 'AKfycbz138Mm9x5hrADoyRzVYyLnZHDcnAxwsIpT36Cdwjzf2TjUxz_iigKZc8jtepeYosRu';';
 // Logo: put logo.png next to index.html, OR paste a full URL / data-URI
 const LOGO = './logo.png';
 
@@ -202,18 +202,23 @@ let S = {
 /* ══════════════════════════════════════════
    API
    ══════════════════════════════════════════ */
-async function GET(action){
-  const r = await fetch(`${GAS}?action=${action}`,{redirect:'follow'});
-  return r.json();
+/* Single GET-based call — avoids POST→302→GET redirect CORS issue */
+async function GET(action, data={}){
+  try{
+    const p = new URLSearchParams({action});
+    if(Object.keys(data).length) p.set('d', JSON.stringify(data));
+    const r = await fetch(`${GAS}?${p}`, {redirect:'follow'});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }catch(e){
+    console.error('[KickPoll]', e);
+    return {ok:false, error: e.message||'Network error — check console (F12)'};
+  }
 }
+/* POST now routes through GET too, extracting action + passing rest as data */
 async function POST(payload){
-  const r = await fetch(GAS,{
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(payload),
-    redirect:'follow'
-  });
-  return r.json();
+  const {action, ...data} = payload;
+  return GET(action, data);
 }
 
 /* ══════════════════════════════════════════
