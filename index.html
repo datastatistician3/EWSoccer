@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Everest Warriors</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0f14;font-family:'Roboto',sans-serif;display:flex;justify-content:center;padding:20px 0;min-height:100vh}
+::-webkit-scrollbar{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+
+/* ── phone frame ── */
+#pw{width:375px;max-width:100%}
+@media(max-width:420px){body{padding:0}#pw{width:100%}}
+.phone{background:#0D1117;border-radius:44px;border:2px solid #30363d;overflow:hidden;min-height:760px;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,200,83,.12),0 0 0 1px #161b22}
+@media(max-width:420px){.phone{border-radius:0;border:none;min-height:100svh}}
+.sb{padding:12px 24px 4px;display:flex;justify-content:space-between;flex-shrink:0}
+.sb span{font-size:12px;color:#e6edf3}
+.sb .sr{color:#8b949e;font-size:10px!important}
+#app{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── toast ── */
+#tw{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none}
+.toast{background:#00C853;color:#0D1117;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;box-shadow:0 4px 20px rgba(0,200,83,.4);animation:slideUp .25s ease;white-space:nowrap}
+
+/* ── screens ── */
+.scr{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.scrl{overflow-y:auto;scrollbar-width:none}
+.scrl::-webkit-scrollbar{display:none}
+
+/* ── buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:10px;border:none;background:#00C853;color:#0D1117;font-size:14px;font-weight:700;cursor:pointer;font-family:'Roboto',sans-serif;transition:opacity .15s}
+.btn:disabled{background:#21262d;color:#8b949e;cursor:default;opacity:.7}
+.btn.full{width:100%}
+.btn.danger{background:#F85149;color:#fff}
+.btn.ghost{background:transparent;border:1px solid #30363d;color:#8b949e}
+.btn.sm{padding:4px 10px;border-radius:8px;font-size:11px}
+.btn.sm-g{background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.3);color:#00C853}
+.btn.sm-r{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:#F85149}
+.btn.sm-a{background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.3);color:#E3B341}
+
+/* ── pill ── */
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.4px;display:inline-flex}
+.pg{background:rgba(0,200,83,.13);color:#00C853}
+.pm{background:rgba(139,148,158,.13);color:#8b949e}
+.pa{background:rgba(227,179,65,.13);color:#E3B341}
+.pb{background:rgba(88,166,255,.13);color:#58a6ff}
+
+/* ── fields ── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;color:#8b949e;margin-bottom:5px;letter-spacing:.5px}
+.field input,.field textarea{width:100%;background:#1c2128;border:1px solid #30363d;border-radius:10px;padding:11px 12px;font-size:13px;color:#e6edf3;outline:none;font-family:'Roboto',sans-serif;resize:none}
+.field input:focus,.field textarea:focus{border-color:#00C853}
+.field .pw{position:relative}
+.field .pw input{padding-right:38px}
+.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;color:#8b949e;padding:0}
+
+/* ── avatar ── */
+.av{border-radius:50%;background:rgba(0,200,83,.2);display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#00C853;flex-shrink:0}
+
+/* ── filter ── */
+.fb{padding:0 18px 10px;display:flex;gap:6px;flex-shrink:0}
+.fb button{padding:5px 16px;border-radius:99px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'Roboto',sans-serif;transition:all .15s}
+.fb .on{background:#00C853;color:#0D1117}
+.fb .off{background:#161b22;color:#8b949e}
+
+/* ── bottom nav ── */
+.bnav{background:#161b22;border-top:1px solid #21262d;display:flex;flex-shrink:0}
+.nb{flex:1;padding:8px 4px 7px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ni{font-size:20px;line-height:1}
+.nl{font-size:10px;font-weight:600;font-family:'Roboto',sans-serif}
+.nl.on{color:#00C853}
+.nl.off{color:#8b949e}
+.ndot{width:4px;height:4px;border-radius:2px;background:#00C853}
+
+/* ── vote bar ── */
+.vbar{height:5px;background:rgba(255,255,255,.07);overflow:hidden}
+.vbf{height:100%;width:0;transition:width .55s cubic-bezier(.4,0,.2,1)}
+
+/* ── poll card ── */
+.pc{background:#161b22;border-radius:16px;border:1px solid #21262d;margin-bottom:12px;overflow:hidden}
+.popt{margin-bottom:8px;border-radius:10px;overflow:hidden;border:1px solid;cursor:pointer;transition:all .18s}
+.poi{padding:10px 12px;display:flex;align-items:center;gap:8px}
+
+/* ── overlay ── */
+.ov{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;justify-content:flex-end}
+.ovbg{position:absolute;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(1px)}
+.sheet{position:relative;background:#1a2030;border-radius:18px 18px 0 0;padding:16px 14px 28px;box-shadow:0 -4px 32px rgba(0,0,0,.6);animation:slideUp .22s ease}
+.hdl{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);margin:0 auto 14px}
+
+/* ── context sheet ── */
+.cprev{background:rgba(255,255,255,.05);border-radius:10px;padding:8px 11px;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+.cline{width:5px;border-radius:3px;background:#00C853;align-self:stretch;flex-shrink:0}
+.crrow{display:flex;justify-content:space-around;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:14px}
+.crb{width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;font-size:21px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cact{display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;border-radius:10px;padding:11px 10px;cursor:pointer;font-family:'Roboto',sans-serif;font-size:14px;font-weight:500}
+
+/* ── emoji picker ── */
+.epk{background:#161b22;border-top:1px solid #21262d;flex-shrink:0}
+.ecats{display:flex;border-bottom:1px solid #21262d;overflow-x:auto;scrollbar-width:none}
+.ecats::-webkit-scrollbar{display:none}
+.ecat{flex:0 0 auto;padding:7px 10px;background:none;border:none;cursor:pointer;font-size:17px;border-bottom:2px solid transparent}
+.ecat.on{border-bottom-color:#00C853;opacity:1}
+.ecat.off{opacity:.5}
+.egrid{display:grid;grid-template-columns:repeat(8,1fr);gap:1px;padding:6px 8px;max-height:130px;overflow-y:auto;scrollbar-width:none}
+.egrid::-webkit-scrollbar{display:none}
+.emi{background:none;border:none;cursor:pointer;font-size:21px;padding:3px;border-radius:5px}
+
+/* ── reaction pills ── */
+.rp{display:inline-flex;align-items:center;gap:2px;border-radius:99px;padding:2px 7px;cursor:pointer;font-size:14px;transition:all .15s;border:1px solid}
+.rpm{background:rgba(0,200,83,.15);border-color:#00C853}
+.rpt{background:#1c2128;border-color:#21262d}
+.rc{font-size:10px;font-weight:700}
+.rcm{color:#00C853}
+.rct{color:#8b949e}
+
+/* ── reply bar ── */
+.rbar{background:#1c2128;border-top:1px solid #21262d;padding:6px 12px 6px 14px;flex-shrink:0;display:flex;align-items:center;gap:8px;border-left:3px solid #00C853}
+
+/* ── input bar ── */
+.ibar{padding:10px 12px 14px;border-top:1px solid #21262d;flex-shrink:0;display:flex;gap:6px;align-items:center}
+.ibar input{flex:1;background:#1c2128;border:1px solid #30363d;border-radius:99px;padding:9px 14px;font-size:13px;color:#e6edf3;outline:none;font-family:'Roboto',sans-serif;min-width:0}
+.icb{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:900;transition:background .2s}
+
+/* ── message bubbles ── */
+.bme{background:#00C853;border-radius:14px 14px 3px 14px;padding:8px 11px}
+.btm{background:#161b22;border-radius:14px 14px 14px 3px;padding:8px 11px;border:1px solid #21262d}
+.tme{font-size:13px;color:#0D1117;line-height:1.45;word-break:break-word}
+.ttm{font-size:13px;color:#e6edf3;line-height:1.45;word-break:break-word}
+.tsme{font-size:9px;color:rgba(0,0,0,.35);margin-top:3px;text-align:right}
+.tstm{font-size:9px;color:#8b949e;margin-top:3px;text-align:right}
+.bhlt{box-shadow:0 0 0 2px #00C853}
+
+/* ── profile ── */
+.phdr{padding:24px 18px 18px;background:#161b22;border-bottom:1px solid #21262d;text-align:center}
+.pavi{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#00C853,#00897B);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;margin:0 auto 10px;box-shadow:0 0 0 4px rgba(0,200,83,.2)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 18px}
+.scard{background:#161b22;border-radius:12px;padding:12px;border:1px solid #21262d;text-align:center}
+
+/* ── home banner ── */
+.hban{margin:8px 14px 20px;border-radius:16px;background:linear-gradient(160deg,#0f2a0f,#081508);border:1px solid rgba(0,200,83,.25);padding:20px 18px 18px;text-align:center}
+
+/* ── members panel ── */
+.mpan{background:#1c2128;border-bottom:1px solid #21262d;padding:12px 18px;flex-shrink:0;max-height:230px;overflow-y:auto;scrollbar-width:none}
+.mpan::-webkit-scrollbar{display:none}
+.mrow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #21262d}
+
+/* ── demo box ── */
+.dbox{background:#161b22;border-radius:10px;border:1px solid #21262d;padding:10px 14px;margin-top:20px}
+.drow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;cursor:pointer;border-bottom:1px solid #21262d}
+.drow:last-of-type{border-bottom:none}
+</style>
+</head>
+<body>
+
+<div id="tw"></div>
+<div id="pw">
+  <div class="phone">
+    <div class="sb">
+      <span id="clk">9:41</span>
+      <span class="sr">▪▪▪ WiFi 🔋</span>
+    </div>
+    <div id="app"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   ①  CONFIG  — edit these two lines
+   ══════════════════════════════════════════ */
+const GAS  = 'AKfycbz138Mm9x5hrADoyRzVYyLnZHDcnAxwsIpT36Cdwjzf2TjUxz_iigKZc8jtepeYosRu';
+// Logo: put logo.png next to index.html, OR paste a full URL / data-URI
+const LOGO = './logo.png';
+
+/* ══════════════════════════════════════════
+   CONSTANTS
+   ══════════════════════════════════════════ */
+const VR = ['❤️','😂','👍','👎','😮','😢','🔥','⚽'];
+const EC = [
+  {i:'⚽',e:['⚽','🏆','🔥','⚡','💪','🥇','🎯','🏃','🥅','🎽','👟','🧤','😎','🏋','🤸','🧗']},
+  {i:'😊',e:['😀','😂','🥰','😍','🤩','😘','😅','🤣','🥳','😤','😡','🥺','😴','🤗','😇','🤔']},
+  {i:'👋',e:['👋','👍','👎','✊','👏','🙌','🫶','🤝','🙏','💪','✌','🤙','👌','🤌','🤏','🫰']},
+  {i:'❤️',e:['❤️','🧡','💛','💚','💙','💜','🖤','💔','💕','💯','✨','🌟','🎉','🎊','🏆','🥂']},
+];
+
+/* ══════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════ */
+let S = {
+  screen:'login', tab:'home',
+  user:null, polls:[], messages:[], chatApproved:[], chatRequests:[], users:[],
+  loginErr:'', signupErr:'',
+  gamesFilter:'Open', showVoters:{},
+  ctxMsg:null, replyTo:null, emojiOpen:false, emojiCat:0,
+  showMembers:false, chatInterval:null,
+};
+
+/* ══════════════════════════════════════════
+   API
+   ══════════════════════════════════════════ */
+async function GET(action){
+  const r = await fetch(`${GAS}?action=${action}`,{redirect:'follow'});
+  return r.json();
+}
+async function POST(payload){
+  const r = await fetch(GAS,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload),
+    redirect:'follow'
+  });
+  return r.json();
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+   ══════════════════════════════════════════ */
+const pct=(n,t)=>t===0?0:Math.round(n/t*100);
+const ini=(s)=>(s||'?')[0].toUpperCase();
+const esc=(s)=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+let _tt;
+function toast(msg){
+  const w=document.getElementById('tw');
+  w.innerHTML=`<div class="toast">${esc(msg)}</div>`;
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>{if(w)w.innerHTML=''},2500);
+}
+
+function tickClock(){
+  const n=new Date(),el=document.getElementById('clk');
+  if(el)el.textContent=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;
+}
+
+function animBars(){
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.vbf').forEach(el=>{
+      el.style.width=el.dataset.p+'%';
+    });
+  });
+}
+
+function scrollMsgs(){
+  const el=document.getElementById('chatmsgs');
+  if(el)el.scrollTop=el.scrollHeight;
+}
+
+/* ══════════════════════════════════════════
+   RENDER ROUTER
+   ══════════════════════════════════════════ */
+function render(){
+  const app=document.getElementById('app');
+  if(!app)return;
+  if(S.screen==='login')      app.innerHTML=rLogin();
+  else if(S.screen==='signup') app.innerHTML=rSignup();
+  else{
+    app.innerHTML=rApp();
+    animBars();
+    if(S.tab==='chat')requestAnimationFrame(scrollMsgs);
+  }
+}
+function set(p){Object.assign(S,p);render();}
+
+/* ══════════════════════════════════════════
+   LOGIN
+   ══════════════════════════════════════════ */
+function rLogin(){return`
+<div class="scr scrl" style="background:#0D1117">
+  <div style="padding:32px 28px 16px;text-align:center">
+    <img src="${LOGO}" onerror="this.style.display='none'" alt="EW" style="width:80px;height:auto;margin-bottom:6px">
+    <div style="font-size:22px;font-weight:900;color:#00C853;letter-spacing:-.5px;margin-top:4px">EVEREST WARRIORS</div>
+    <div style="font-size:13px;color:#8b949e;margin-top:8px">Join us for pick-up games!</div>
+  </div>
+  <div style="padding:0 24px 32px">
+    ${S.loginErr?`<div style="background:rgba(248,81,73,.1);border:1px solid #F85149;border-radius:10px;padding:10px 14px;font-size:12px;color:#F85149;margin-bottom:14px">⚠ ${esc(S.loginErr)}</div>`:''}
+    <div class="field"><label>EMAIL</label><input id="le" type="email" value="admin@kickpoll.com" placeholder="you@email.com"></div>
+    <div class="field"><label>PASSWORD</label><div class="pw"><input id="lp" type="password" value="admin123" placeholder="••••••••"><button class="eye" da="epw" dt="lp">👁</button></div></div>
+    <div style="height:16px"></div>
+    <button class="btn full" da="login">Sign In</button>
+    <div style="display:flex;align-items:center;gap:10px;margin:18px 0">
+      <div style="flex:1;height:1px;background:#21262d"></div><span style="font-size:12px;color:#8b949e">or</span><div style="flex:1;height:1px;background:#21262d"></div>
+    </div>
+    <div style="text-align:center;font-size:13px;color:#8b949e">No account?
+      <button class="btn ghost" style="padding:5px 12px;font-size:12px;margin-left:4px" da="goSignup">Sign Up</button>
+    </div>
+    <div class="dbox">
+      <div style="font-size:11px;font-weight:700;color:#8b949e;margin-bottom:6px">DEMO ACCOUNTS — tap to fill</div>
+      <div class="drow" da="demo" data-e="admin@kickpoll.com" data-p="admin123">
+        <span style="font-size:12px;color:#e6edf3;font-weight:600">👑 Admin</span>
+        <span style="font-size:11px;color:#8b949e">admin@kickpoll.com</span>
+      </div>
+      <div class="drow" da="demo" data-e="test@test.com" data-p="123456">
+        <span style="font-size:12px;color:#e6edf3;font-weight:600">👤 Alex</span>
+        <span style="font-size:11px;color:#8b949e">test@test.com</span>
+      </div>
+      <div class="drow" da="demo" data-e="jordan@test.com" data-p="123456">
+        <span style="font-size:12px;color:#e6edf3;font-weight:600">👤 Jordan</span>
+        <span style="font-size:11px;color:#8b949e">jordan@test.com</span>
+      </div>
+    </div>
+  </div>
+</div>`;}
+
+/* ══════════════════════════════════════════
+   SIGNUP
+   ══════════════════════════════════════════ */
+function rSignup(){return`
+<div class="scr scrl" style="background:#0D1117">
+  <div style="padding:20px 20px 0;display:flex;align-items:center;gap:12px;flex-shrink:0">
+    <button class="btn ghost" style="padding:6px 12px;font-size:13px" da="goLogin">←</button>
+    <div style="font-size:18px;font-weight:800;color:#e6edf3">Create account</div>
+  </div>
+  <div style="padding:20px 24px 32px">
+    ${S.signupErr?`<div style="background:rgba(248,81,73,.1);border:1px solid #F85149;border-radius:10px;padding:10px 14px;font-size:12px;color:#F85149;margin-bottom:14px">⚠ ${esc(S.signupErr)}</div>`:''}
+    <div class="field"><label>NAME</label><input id="sn" placeholder="Your name"></div>
+    <div class="field"><label>EMAIL</label><input id="se" type="email" placeholder="you@email.com"></div>
+    <div class="field"><label>PASSWORD</label><div class="pw"><input id="sp" type="password" placeholder="Min 6 characters"><button class="eye" da="epw" dt="sp">👁</button></div></div>
+    <div class="field"><label>CONFIRM</label><div class="pw"><input id="sc" type="password" placeholder="Repeat password"><button class="eye" da="epw" dt="sc">👁</button></div></div>
+    <button class="btn full" da="signup">Create Account</button>
+    <div style="text-align:center;font-size:13px;color:#8b949e;margin-top:16px">Have an account?
+      <button class="btn ghost" style="padding:5px 12px;font-size:12px;margin-left:4px" da="goLogin">Sign In</button>
+    </div>
+  </div>
+</div>`;}
+
+/* ══════════════════════════════════════════
+   APP SHELL
+   ══════════════════════════════════════════ */
+function rApp(){
+  let c='';
+  if     (S.tab==='home')                    c=rHome();
+  else if(S.tab==='games')                   c=rGames();
+  else if(S.tab==='chat')                    c=rChat();
+  else if(S.tab==='create'&&S.user?.isAdmin) c=rCreate();
+  else if(S.tab==='profile')                 c=rProfile();
+  else                                       c=rHome();
+  return`<div class="scr">${c}${rNav()}</div>`;
+}
+
+/* ── bottom nav ── */
+function rNav(){
+  const tabs=[
+    {id:'home',  icon:'🏠', label:'Home'},
+    {id:'games', icon:'⚽', label:'Games'},
+    {id:'chat',  icon:'chat',label:'Chat'},
+    ...(S.user?.isAdmin?[{id:'create',icon:'➕',label:'Create'}]:[]),
+    {id:'profile',icon:'👤',label:'Profile'},
+  ];
+  return`<div class="bnav">${tabs.map(t=>{
+    const on=S.tab===t.id;
+    const ico=t.icon==='chat'
+      ?`<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C6.477 2 2 6.037 2 11c0 2.38.94 4.547 2.475 6.163L3.1 21.1a.6.6 0 0 0 .8.8l4.12-1.63A10.27 10.27 0 0 0 12 20.8c5.523 0 10-4.036 10-9S17.523 2 12 2Z"
+            fill="${on?'rgba(0,200,83,.2)':'rgba(139,148,158,.12)'}" stroke="${on?'#00C853':'#8b949e'}" stroke-width="1.6" stroke-linejoin="round"/>
+          <circle cx="8.5" cy="11" r="1.1" fill="${on?'#00C853':'#8b949e'}"/>
+          <circle cx="12"  cy="11" r="1.1" fill="${on?'#00C853':'#8b949e'}"/>
+          <circle cx="15.5" cy="11" r="1.1" fill="${on?'#00C853':'#8b949e'}"/>
+        </svg>`
+      :`<span class="ni" style="${on?'':'filter:grayscale(1);opacity:.5'}">${t.icon}</span>`;
+    return`<button class="nb" da="tab" data-t="${t.id}">
+      <div style="width:24px;height:24px;display:flex;align-items:center;justify-content:center">${ico}</div>
+      <span class="nl ${on?'on':'off'}">${t.label}</span>
+      ${on?'<div class="ndot"></div>':''}
+    </button>`;
+  }).join('')}</div>`;
+}
+
+/* ══════════════════════════════════════════
+   HOME TAB
+   ══════════════════════════════════════════ */
+function rHome(){
+  const latest=S.polls.find(p=>p.type==='game'&&!p.closed);
+  return`
+<div class="scr scrl">
+  <div style="padding:24px 0 8px;text-align:center">
+    <img src="${LOGO}" onerror="this.style.display='none'" alt="EW" style="width:80px;height:auto;margin-bottom:6px">
+    <div style="font-size:22px;font-weight:900;color:#00C853;letter-spacing:-.5px">EVEREST WARRIORS</div>
+  </div>
+  <div class="hban">
+    <div style="font-size:20px;font-weight:900;color:#00C853;letter-spacing:-.5px;line-height:1.25;margin-bottom:16px">Welcome to<br>Everest Warriors</div>
+    ${latest?`
+    <div da="tab" data-t="games" style="background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.3);border-radius:10px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left">
+      <span style="font-size:22px">🏃</span>
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:700;color:#00C853;letter-spacing:.5px;margin-bottom:3px">LATEST OPEN GAME</div>
+        <div style="font-size:13px;color:#e6edf3;font-weight:600;line-height:1.35">${esc(latest.title)}</div>
+      </div>
+      <span style="font-size:20px;color:#00C853">↓</span>
+    </div>`
+    :`<div style="font-size:13px;color:rgba(230,237,243,.4)">No open games right now.${S.user?.isAdmin?` <span da="tab" data-t="create" style="color:#00C853;font-weight:700;cursor:pointer">Create one →</span>`:''}</div>`}
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 20px">
+    <div class="scard"><div style="font-size:18px">🗳</div><div style="font-size:22px;font-weight:800;color:#e6edf3;margin-top:4px">${S.polls.length}</div><div style="font-size:11px;color:#8b949e;margin-top:2px">Total Polls</div></div>
+    <div class="scard"><div style="font-size:18px">👥</div><div style="font-size:22px;font-weight:800;color:#e6edf3;margin-top:4px">${S.chatApproved.length}</div><div style="font-size:11px;color:#8b949e;margin-top:2px">Members</div></div>
+  </div>
+</div>`;}
+
+/* ══════════════════════════════════════════
+   GAMES TAB
+   ══════════════════════════════════════════ */
+function rGames(){
+  const shown=S.polls.filter(p=>p.type==='game'&&(S.gamesFilter==='Open'?!p.closed:p.closed));
+  return`
+<div class="scr" style="display:flex;flex-direction:column;overflow:hidden">
+  <div style="padding:12px 18px 10px;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="${LOGO}" onerror="this.style.display='none'" alt="" style="width:34px;height:auto">
+      <span style="font-size:22px;font-weight:900;color:#e6edf3;letter-spacing:-.5px">Game Polls</span>
+    </div>
+    <div style="font-size:13px;color:#8b949e;margin-top:2px">Vote on upcoming Everest Warriors games</div>
+  </div>
+  <div class="fb">
+    <button class="fb ${S.gamesFilter==='Open'?'on':'off'}" da="filter" data-f="Open">Open</button>
+    <button class="fb ${S.gamesFilter==='Closed'?'on':'off'}" da="filter" data-f="Closed">Closed</button>
+  </div>
+  <div class="scrl" style="flex:1;padding:0 18px 16px">
+    ${shown.length===0
+      ?`<div style="text-align:center;padding:32px 0;color:#8b949e;font-size:14px">No ${S.gamesFilter.toLowerCase()} polls.</div>`
+      :shown.map(p=>rPollCard(p)).join('')}
+  </div>
+</div>`;}
+
+function rPollCard(p){
+  const total=p.votes.length;
+  const myVote=S.user?p.votes.find(v=>v.userId===S.user.id):null;
+  const voted=!!myVote;
+  const tally=p.options.map((_,i)=>p.votes.filter(v=>v.optionIdx===i).length);
+  const maxV=Math.max(...tally,1);
+  const showV=S.showVoters[p.id];
+
+  const opts=p.options.map((opt,i)=>{
+    const count=tally[i], pc=pct(count,total);
+    const mine=myVote?.optionIdx===i;
+    const win=voted&&count===maxV&&count>0;
+    const canV=!p.closed&&!mine;
+    return`
+    <div class="popt" da="${canV?'vote':''}" data-pid="${p.id}" data-idx="${i}"
+      style="border-color:${mine?'#00C853':'#21262d'};background:${mine?'rgba(0,200,83,.07)':'transparent'};opacity:${p.closed&&!mine?.55:1};cursor:${canV?'pointer':'default'}">
+      <div class="poi">
+        <span style="flex:1;font-size:13px;font-weight:600;color:#e6edf3">${esc(opt)}</span>
+        ${voted?`<span style="font-size:13px;font-weight:700;color:${mine?'#00C853':'#8b949e'}">${pc}%</span>`:''}
+        ${mine?`<span style="font-size:11px;color:#00C853">✓ yours</span>`:''}
+        ${!mine&&win?`<span>👑</span>`:''}
+        ${voted&&!mine&&!p.closed?`<span style="font-size:10px;color:#8b949e;background:#21262d;border-radius:6px;padding:2px 6px">switch ↩</span>`:''}
+        ${!voted&&!p.closed?`<span style="font-size:11px;color:#8b949e">Tap</span>`:''}
+      </div>
+      ${voted?`<div class="vbar"><div class="vbf" data-p="${pc}" style="background:${mine?'#00C853':'#30363d'}"></div></div>`:''}
+    </div>`;
+  }).join('');
+
+  const voterHtml=showV?`
+  <div style="padding:0 14px 12px;border-top:1px solid #21262d">
+    ${total===0?`<div style="font-size:12px;color:#8b949e;padding:8px 0">No votes yet.</div>`
+    :p.options.map((opt,i)=>{
+      const vv=p.votes.filter(v=>v.optionIdx===i);
+      if(!vv.length)return'';
+      return`<div style="margin-top:10px">
+        <div style="font-size:11px;font-weight:700;color:#8b949e;margin-bottom:5px">${esc(opt)} — ${vv.length}</div>
+        ${vv.map(v=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #21262d">
+          <div class="av" style="width:26px;height:26px;font-size:11px">${ini(v.userName)}</div>
+          <span style="flex:1;font-size:12px;color:#e6edf3">${esc(v.userName)}</span>
+          ${v.userId===S.user?.id?'<span style="font-size:10px;color:#00C853;font-weight:700">you</span>':''}
+        </div>`).join('')}
+      </div>`;
+    }).join('')}
+  </div>`:'';
+
+  return`
+  <div class="pc">
+    <div style="padding:13px 14px 10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="display:flex;gap:5px;margin-bottom:6px;align-items:center;flex-wrap:wrap">
+            <span class="pill ${p.closed?'pm':'pg'}">${p.closed?'🔒 Closed':'🟢 Open'}</span>
+          </div>
+          <div style="font-size:15px;font-weight:700;color:#e6edf3;line-height:1.35">${esc(p.title)}</div>
+        </div>
+        ${S.user?.isAdmin?`<div style="display:flex;gap:6px;flex-shrink:0">
+          ${!p.closed?`<button class="btn sm sm-a" da="closePoll" data-pid="${p.id}">Close</button>`:''}
+          <button class="btn sm sm-r" da="deletePoll" data-pid="${p.id}">Delete</button>
+        </div>`:''}
+      </div>
+      <div style="font-size:11px;color:#8b949e;margin-top:4px">Created ${esc(p.createdAt)}</div>
+    </div>
+    <div style="padding:0 14px 4px">${opts}</div>
+    <div style="padding:8px 14px 10px;border-top:1px solid #21262d;display:flex;justify-content:space-between;align-items:center">
+      <button style="background:none;border:none;cursor:pointer;font-size:12px;color:${showV?'#00C853':'#8b949e'};font-weight:600;display:flex;align-items:center;gap:4px;padding:0"
+        da="toggleVoters" data-pid="${p.id}">
+        👤 ${total} voter${total!==1?'s':''} <span style="font-size:10px">${showV?'▲':'▼'}</span>
+      </button>
+      ${!voted&&!p.closed?`<span style="font-size:11px;color:#00C853;font-weight:600">Vote now ↑</span>`:''}
+      ${voted&&!p.closed?`<span style="font-size:11px;color:#8b949e">Tap another to switch ↩</span>`:''}
+      ${p.closed?`<span style="font-size:11px;color:#8b949e">Poll closed</span>`:''}
+    </div>
+    ${voterHtml}
+  </div>`;}
+
+/* ══════════════════════════════════════════
+   CHAT TAB
+   ══════════════════════════════════════════ */
+function rChat(){
+  const isAdmin=S.user?.isAdmin;
+  const isApproved=S.chatApproved.includes(S.user?.id);
+  const isPending=S.chatRequests.includes(S.user?.id);
+
+  if(!isApproved&&!isAdmin)return`
+  <div class="scr">
+    <div style="padding:12px 18px 10px;flex-shrink:0"><div style="font-size:22px;font-weight:900;color:#e6edf3">💬 Group Chat</div><div style="font-size:13px;color:#8b949e">Everest Warriors private chat</div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center">
+      <div style="font-size:56px;margin-bottom:16px">🔒</div>
+      <div style="font-size:17px;font-weight:700;color:#e6edf3;margin-bottom:10px">Private Group Chat</div>
+      <div style="font-size:13px;color:#8b949e;line-height:1.65;margin-bottom:28px">This chat is for approved members only.</div>
+      ${isPending?`
+      <div style="width:100%">
+        <div style="background:rgba(0,200,83,.07);border:1px solid rgba(0,200,83,.25);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:14px;font-weight:700;color:#00C853;margin-bottom:4px">⏳ Request Pending</div>
+          <div style="font-size:12px;color:#8b949e">Waiting for admin approval…</div>
+        </div>
+        <button class="btn danger full" da="cancelChat">Cancel Request</button>
+      </div>`:`<button class="btn full" da="reqChat">Request to Join Chat</button>`}
+    </div>
+  </div>`;
+
+  const approved=S.chatApproved.map(id=>S.users.find(u=>u.id===id)||{id,name:'User'});
+  const pending=S.chatRequests.map(id=>S.users.find(u=>u.id===id)||{id,name:'User'});
+  const myRxCtx=S.ctxMsg?Object.entries(S.ctxMsg.reactions||{}).find(([,v])=>v.includes(S.user?.id))?.[0]:null;
+
+  return`
+  <div class="scr" style="position:relative;overflow:hidden">
+    <!-- Header -->
+    <div style="padding:12px 18px 10px;border-bottom:1px solid #21262d;flex-shrink:0;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:18px;font-weight:900;color:#e6edf3">💬 Group Chat</div>
+        <div style="font-size:11px;color:#8b949e">${approved.length} members</div>
+      </div>
+      ${isAdmin?`<button class="btn ghost" style="padding:5px 12px;font-size:12px;display:flex;align-items:center;gap:6px" da="toggleMem">
+        👥 Members
+        ${S.chatRequests.length?`<span style="background:#F85149;color:#fff;border-radius:50%;width:17px;height:17px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${S.chatRequests.length}</span>`:''}
+      </button>`:''}
+    </div>
+
+    <!-- Members panel -->
+    ${isAdmin&&S.showMembers?`
+    <div class="mpan">
+      ${pending.length?`
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#E3B341;margin-bottom:8px;letter-spacing:.5px">⏳ PENDING (${pending.length})</div>
+        ${pending.map(u=>`<div class="mrow">
+          <div class="av" style="width:28px;height:28px;font-size:11px;background:rgba(227,179,65,.2);color:#E3B341">${ini(u.name)}</div>
+          <span style="flex:1;font-size:12px;color:#e6edf3">${esc(u.name)}</span>
+          <button class="btn sm sm-g" da="approveChat" data-uid="${u.id}">✓</button>
+          <button class="btn sm sm-r" style="margin-left:4px" da="denyChat" data-uid="${u.id}">✕</button>
+        </div>`).join('')}
+      </div>`:''}
+      <div style="font-size:11px;font-weight:700;color:#8b949e;margin-bottom:8px;letter-spacing:.5px">✅ APPROVED (${approved.length})</div>
+      ${approved.map(u=>`<div class="mrow">
+        <div class="av" style="width:28px;height:28px;font-size:11px">${ini(u.name)}</div>
+        <span style="flex:1;font-size:12px;color:#e6edf3">${esc(u.name)}</span>
+        ${u.id==='u0'?`<span style="font-size:10px;color:#E3B341;font-weight:700">👑 Admin</span>`:`<button class="btn sm sm-r" da="removeChat" data-uid="${u.id}">Remove</button>`}
+      </div>`).join('')}
+    </div>`:''}
+
+    <!-- Messages -->
+    <div id="chatmsgs" class="scrl" style="flex:1;padding:10px 12px 6px;display:flex;flex-direction:column;gap:2px"
+      da="bgClick">
+      ${S.messages.length===0
+        ?`<div style="text-align:center;padding:40px 0;color:#8b949e;font-size:13px">No messages yet. Say hello! 👋</div>`
+        :S.messages.map((m,i)=>rMsg(m,i)).join('')}
+    </div>
+
+    <!-- Context overlay -->
+    ${S.ctxMsg?rCtxSheet(S.ctxMsg,myRxCtx):''}
+
+    <!-- Emoji picker -->
+    ${S.emojiOpen&&!S.ctxMsg?rEmojiPicker():''}
+
+    <!-- Reply bar -->
+    ${S.replyTo&&!S.ctxMsg?`
+    <div class="rbar">
+      <div style="flex:1;overflow:hidden">
+        <div style="font-size:11px;font-weight:700;color:#00C853;margin-bottom:1px">↩ Replying to ${esc(S.replyTo.userName)}</div>
+        <div style="font-size:11px;color:#8b949e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.replyTo.text||'Photo')}</div>
+      </div>
+      <button da="clearReply" style="background:none;border:none;cursor:pointer;font-size:16px;color:#8b949e;padding:2px">✕</button>
+    </div>`:''}
+
+    <!-- Input bar -->
+    <div class="ibar">
+      <button class="icb" id="emjbtn" da="toggleEmoji"
+        style="background:${S.emojiOpen?'#00C853':'#1c2128'};color:${S.emojiOpen?'#0D1117':'#8b949e'}">
+        ${S.emojiOpen?'⌨️':'😊'}
+      </button>
+      <input id="ci" placeholder="${S.replyTo?`Reply to ${S.replyTo.userName}…`:'Type a message…'}"
+        style="background:#1c2128;border:1px solid #30363d;border-radius:99px;padding:9px 14px;font-size:13px;color:#e6edf3;outline:none;font-family:Roboto,sans-serif;min-width:0;flex:1">
+      <button class="icb" id="sndbtn" da="sendMsg"
+        style="background:#21262d;color:#8b949e;font-size:15px">➤</button>
+    </div>
+  </div>`;}
+
+function rMsg(msg,i){
+  const isMe=msg.userId===S.user?.id;
+  const showH=i===0||S.messages[i-1].userId!==msg.userId;
+  const rx=msg.reactions||{};
+  const hasRx=Object.values(rx).some(v=>v.length>0);
+  const isCtx=S.ctxMsg?.id===msg.id;
+
+  const bubble=msg.type==='text'?`
+    <div class="${isMe?'bme':'btm'}${isCtx?' bhlt':''}">
+      <div class="${isMe?'tme':'ttm'}">${esc(msg.text)}</div>
+      <div class="${isMe?'tsme':'tstm'}">${esc(msg.time)}</div>
+    </div>`
+  :msg.type==='image'?`
+    <div style="border-radius:${isMe?'14px 14px 3px 14px':'14px 14px 14px 3px'};overflow:hidden;border:${isMe?'2px solid #00C853':'1px solid #21262d'}${isCtx?';box-shadow:0 0 0 2px #00C853':''}">
+      <img src="${esc(msg.imageUrl)}" style="display:block;max-width:180px;max-height:200px;object-fit:cover">
+      <div style="background:${isMe?'#00C853':'#161b22'};padding:2px 8px 4px;text-align:right">
+        <span style="font-size:9px;color:${isMe?'rgba(0,0,0,.35)':'#8b949e'}">${esc(msg.time)}</span>
+      </div>
+    </div>`:''
+
+  const replyHtml=msg.replyTo?`
+  <div style="background:${isMe?'rgba(0,0,0,.2)':'#1c2128'};border-radius:8px;padding:4px 9px;margin-bottom:3px;border-left:3px solid ${isMe?'rgba(255,255,255,.3)':'#00C853'};max-width:100%;overflow:hidden">
+    <div style="font-size:9px;font-weight:700;color:${isMe?'rgba(255,255,255,.5)':'#00C853'};margin-bottom:1px">${esc(msg.replyTo.userName)}</div>
+    <div style="font-size:10px;color:${isMe?'rgba(255,255,255,.45)':'#8b949e'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px">${esc(msg.replyTo.text||'Photo')}</div>
+  </div>`:'';
+
+  const reactHtml=hasRx?`
+  <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;justify-content:${isMe?'flex-end':'flex-start'}">
+    ${Object.entries(rx).map(([em,vv])=>{
+      if(!vv.length)return'';
+      const mine=vv.includes(S.user?.id);
+      return`<button class="rp ${mine?'rpm':'rpt'}" da="reactMsg" data-mid="${msg.id}" data-em="${em}">
+        ${em}<span class="rc ${mine?'rcm':'rct'}">${vv.length}</span>
+      </button>`;
+    }).join('')}
+  </div>`:'';
+
+  return`
+  <div style="margin-bottom:${showH?8:2}px">
+    ${showH&&!isMe?`<div style="font-size:10px;color:#8b949e;margin-bottom:2px;margin-left:36px">${esc(msg.userName)}</div>`:''}
+    <div style="display:flex;align-items:flex-end;gap:5px;flex-direction:${isMe?'row-reverse':'row'}">
+      ${!isMe?`<div class="av" style="width:28px;height:28px;font-size:11px;visibility:${showH?'visible':'hidden'}">${ini(msg.userName)}</div>`:''}
+      <div style="display:flex;flex-direction:column;align-items:${isMe?'flex-end':'flex-start'};max-width:220px">
+        ${replyHtml}
+        <div da="openCtx" data-mid="${msg.id}" style="cursor:pointer;user-select:none">${bubble}</div>
+        ${reactHtml}
+      </div>
+    </div>
+  </div>`;}
+
+function rCtxSheet(msg,myRx){
+  const isMe=msg.userId===S.user?.id;
+  return`
+  <div class="ov" da="closeCtx">
+    <div class="ovbg"></div>
+    <div class="sheet" da="noop">
+      <div class="hdl"></div>
+      <div class="cprev">
+        <div class="cline"></div>
+        <div style="flex:1;overflow:hidden">
+          <div style="font-size:10px;color:#00C853;font-weight:700;margin-bottom:2px">${esc(msg.userName)}</div>
+          <div style="font-size:12px;color:#8b949e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(msg.text||'Photo')}</div>
+        </div>
+      </div>
+      <div class="crrow">
+        ${VR.map(em=>{
+          const a=myRx===em;
+          return`<button class="crb" da="reactCtx" data-mid="${msg.id}" data-em="${em}"
+            style="background:${a?'rgba(0,200,83,.22)':'rgba(255,255,255,.06)'};font-size:${a?25:21}px;transform:${a?'scale(1.18)':'scale(1)'};box-shadow:${a?'0 0 0 2px #00C853':'none'}">
+            ${em}
+          </button>`;
+        }).join('')}
+      </div>
+      <div>
+        <button class="cact" da="replyMsg" data-mid="${msg.id}" style="color:#e6edf3">
+          <span style="font-size:18px;width:26px;text-align:center">↩️</span> Reply
+        </button>
+        ${isMe?`<div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0"></div>
+        <button class="cact" da="deleteMsg" data-mid="${msg.id}" style="color:#F85149">
+          <span style="font-size:18px;width:26px;text-align:center">🗑</span> Delete
+        </button>`:''}
+      </div>
+    </div>
+  </div>`;}
+
+function rEmojiPicker(){return`
+  <div class="epk">
+    <div class="ecats">
+      ${EC.map((c,i)=>`<button class="ecat ${S.emojiCat===i?'on':'off'}" da="setECat" data-ci="${i}">${c.i}</button>`).join('')}
+    </div>
+    <div class="egrid">
+      ${EC[S.emojiCat].e.map(em=>`<button class="emi" da="insertEmoji" data-em="${em}">${em}</button>`).join('')}
+    </div>
+  </div>`;}
+
+/* ══════════════════════════════════════════
+   CREATE TAB
+   ══════════════════════════════════════════ */
+function rCreate(){return`
+<div class="scr" style="display:flex;flex-direction:column;overflow:hidden">
+  <div style="padding:12px 18px 10px;flex-shrink:0">
+    <div style="font-size:22px;font-weight:900;color:#e6edf3;letter-spacing:-.5px">⚽ Create Game Poll</div>
+    <div style="font-size:13px;color:#8b949e;margin-top:2px">Ask the team about an upcoming game</div>
+  </div>
+  <div class="scrl" style="flex:1;padding:0 18px 24px">
+    <div style="background:#161b22;border:1px solid #21262d;border-radius:10px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">💡</span>
+      <div style="font-size:12px;color:#8b949e;line-height:1.5">Default options are <b style="color:#e6edf3">Yes / No</b>. Add more below.</div>
+    </div>
+    <div class="field"><label>QUESTION *</label><textarea id="ptitle" rows="2" placeholder="e.g. Are you joining Sunday's game? (12pm, Riverside Park)"></textarea></div>
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:#8b949e;margin-bottom:8px;letter-spacing:.5px">OPTIONS * (min 2, max 8)</div>
+      <div id="optswrap">
+        ${[{v:'Yes'},{v:'No'}].map((o,i)=>`
+        <div class="optrow" style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:22px;height:22px;border-radius:6px;background:#21262d;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#8b949e;flex-shrink:0">${i+1}</div>
+          <input class="popt" value="${o.v}" placeholder="Option ${i+1}…" style="flex:1;background:#1c2128;border:1px solid #30363d;border-radius:10px;padding:9px 12px;font-size:13px;color:#e6edf3;outline:none">
+        </div>`).join('')}
+      </div>
+      <button id="addbtn" da="addOpt" style="width:100%;padding:9px;border-radius:10px;background:transparent;border:1px dashed #30363d;color:#8b949e;font-size:12px;cursor:pointer">+ Add option</button>
+    </div>
+    <button class="btn full" id="pubbtn" da="publishPoll">🚀 Publish Game Poll</button>
+  </div>
+</div>`;}
+
+/* ══════════════════════════════════════════
+   PROFILE TAB
+   ══════════════════════════════════════════ */
+function rProfile(){
+  const u=S.user;
+  const voted=S.polls.filter(p=>p.votes.some(v=>v.userId===u?.id));
+  const act=voted.map(p=>{const v=p.votes.find(v=>v.userId===u?.id);return{p,ch:p.options[v.optionIdx]};}).reverse();
+  return`
+<div class="scr scrl">
+  <div class="phdr">
+    <div class="pavi">${ini(u?.name)}</div>
+    <div style="font-size:17px;font-weight:800;color:#e6edf3">${esc(u?.name)}</div>
+    <div style="font-size:12px;color:#8b949e;margin-top:3px">${esc(u?.email)}</div>
+    <div style="display:flex;gap:6px;justify-content:center;margin-top:8px">
+      ${u?.isAdmin?`<span class="pill pa">👑 Admin</span>`:`<span class="pill pb">👤 Member</span>`}
+    </div>
+  </div>
+  <div class="sgrid">
+    <div class="scard"><div style="font-size:18px">🗳</div><div style="font-size:22px;font-weight:800;color:#e6edf3;margin-top:4px">${voted.length}</div><div style="font-size:11px;color:#8b949e;margin-top:2px">Polls voted</div></div>
+    <div class="scard"><div style="font-size:18px">📊</div><div style="font-size:22px;font-weight:800;color:#e6edf3;margin-top:4px">${S.polls.length}</div><div style="font-size:11px;color:#8b949e;margin-top:2px">Total polls</div></div>
+  </div>
+  <div style="padding:0 18px 16px">
+    <div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:10px">My Votes</div>
+    ${act.length===0?`<div style="color:#8b949e;font-size:13px">No votes yet.</div>`
+    :act.map(({p,ch})=>`
+    <div style="background:#161b22;border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid #21262d;display:flex;align-items:center;gap:10px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${p.closed?'#8b949e':'#00C853'};flex-shrink:0"></div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:#e6edf3;line-height:1.3">${esc(p.title)}</div><div style="font-size:11px;color:#00C853;margin-top:2px">⚽ ${esc(ch)}</div></div>
+      ${p.closed?`<span class="pill pm">Closed</span>`:''}
+    </div>`).join('')}
+  </div>
+  <div style="padding:0 18px 28px">
+    <div style="font-size:14px;font-weight:700;color:#e6edf3;margin-bottom:10px">Settings</div>
+    ${[{i:'🔔',l:'Notifications',r:'On'},{i:'🔒',l:'Privacy'},{i:'❓',l:'Help'}].map(x=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;margin-bottom:6px;background:#161b22;border:1px solid #21262d;cursor:pointer">
+      <span style="font-size:16px">${x.i}</span>
+      <span style="flex:1;font-size:13px;font-weight:600;color:#e6edf3">${x.l}</span>
+      <span style="font-size:12px;color:${x.r?'#00C853':'#8b949e'}">${x.r||'›'}</span>
+    </div>`).join('')}
+    <button class="btn danger full" style="margin-top:12px" da="logout">Sign Out</button>
+  </div>
+</div>`;}
+
+/* ══════════════════════════════════════════
+   EVENTS  — single delegated handler
+   ══════════════════════════════════════════ */
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[da]');
+  if (!el) return;
+  const a = el.getAttribute('da');
+  if (!a || a === 'noop') return;
+
+  switch(a) {
+
+    /* ── auth ── */
+    case 'goSignup': set({screen:'signup',loginErr:'',signupErr:''}); break;
+    case 'goLogin':  set({screen:'login', loginErr:'',signupErr:''}); break;
+
+    case 'epw': {
+      const t=el.getAttribute('dt'), f=document.getElementById(t);
+      if(f){f.type=f.type==='password'?'text':'password';el.textContent=f.type==='password'?'👁':'🙈';}
+      break;
+    }
+    case 'demo': {
+      const em=el.dataset.e, pw=el.dataset.p;
+      const fe=document.getElementById('le'),fp=document.getElementById('lp');
+      if(fe)fe.value=em;if(fp)fp.value=pw;
+      break;
+    }
+    case 'login':  await doLogin();  break;
+    case 'signup': await doSignup(); break;
+    case 'logout': doLogout(); break;
+
+    /* ── tabs ── */
+    case 'tab': {
+      const t=el.dataset.t;
+      stopChatPoll();
+      Object.assign(S,{tab:t,ctxMsg:null,replyTo:null,emojiOpen:false});
+      if(t==='chat'){await loadChat();startChatPoll();}
+      else render();
+      break;
+    }
+
+    /* ── polls ── */
+    case 'filter': set({gamesFilter:el.dataset.f}); break;
+
+    case 'toggleVoters': {
+      const pid=el.dataset.pid;
+      S.showVoters[pid]=!S.showVoters[pid];
+      set({});break;
+    }
+
+    case 'vote': {
+      const pid=el.dataset.pid, idx=+el.dataset.idx;
+      if(!S.user)return;
+      const poll=S.polls.find(p=>p.id===pid);
+      if(!poll||poll.closed)return;
+      const ex=poll.votes.find(v=>v.userId===S.user.id);
+      if(ex&&ex.optionIdx===idx)return;
+      // optimistic
+      const prevOpt=ex?ex.optionIdx:null;
+      if(ex){ex.optionIdx=idx;}else{poll.votes.push({userId:S.user.id,userName:S.user.name,optionIdx:idx});}
+      set({});
+      toast(prevOpt!==null?`Switched to "${poll.options[idx]}" ↩`:'Vote cast! ✅');
+      POST({action:'vote',pollId:pid,userId:S.user.id,userName:S.user.name,optionIdx:idx});
+      break;
+    }
+
+    case 'closePoll': {
+      const pid=el.dataset.pid;
+      const p=S.polls.find(x=>x.id===pid);
+      if(p)p.closed=true;
+      set({});toast('Poll closed 🔒');
+      POST({action:'closePoll',pollId:pid});
+      break;
+    }
+
+    case 'deletePoll': {
+      const pid=el.dataset.pid;
+      S.polls=S.polls.filter(x=>x.id!==pid);
+      set({});toast('Poll deleted');
+      POST({action:'deletePoll',pollId:pid});
+      break;
+    }
+
+    case 'addOpt': {
+      const w=document.getElementById('optswrap');
+      const n=w.querySelectorAll('.popt').length+1;
+      if(n>8)return;
+      const d=document.createElement('div');
+      d.className='optrow';d.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:8px';
+      d.innerHTML=`
+        <div style="width:22px;height:22px;border-radius:6px;background:#21262d;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#8b949e;flex-shrink:0">${n}</div>
+        <input class="popt" placeholder="Option ${n}…" style="flex:1;background:#1c2128;border:1px solid #30363d;border-radius:10px;padding:9px 12px;font-size:13px;color:#e6edf3;outline:none">
+        <button da="removeOpt" style="width:30px;height:30px;border-radius:8px;flex-shrink:0;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.25);cursor:pointer;color:#F85149;font-size:16px;display:flex;align-items:center;justify-content:center">×</button>`;
+      w.appendChild(d);
+      if(n>=8)document.getElementById('addbtn').style.display='none';
+      break;
+    }
+
+    case 'removeOpt': {
+      el.parentElement.remove();
+      document.querySelectorAll('.optrow').forEach((row,i)=>{
+        const num=row.querySelector('div');if(num)num.textContent=i+1;
+      });
+      const ab=document.getElementById('addbtn');if(ab)ab.style.display='';
+      break;
+    }
+
+    case 'publishPoll': {
+      const title=document.getElementById('ptitle')?.value?.trim();
+      if(!title||title.length<5){toast('Question must be ≥ 5 characters');return;}
+      const options=Array.from(document.querySelectorAll('.popt')).map(i=>i.value.trim()).filter(Boolean);
+      if(options.length<2){toast('Need at least 2 options');return;}
+      const btn=document.getElementById('pubbtn');if(btn)btn.disabled=true;
+      const r=await POST({action:'createPoll',type:'game',title,options});
+      if(r.ok!==false){
+        S.polls.unshift({id:r.id||('p'+Date.now()),type:'game',title,options,votes:[],closed:false,createdAt:'just now'});
+        S.tab='games';set({});toast('Poll published! 🚀');
+      }else{
+        if(btn)btn.disabled=false;toast('Error: '+(r.error||'failed'));
+      }
+      break;
+    }
+
+    /* ── chat access ── */
+    case 'reqChat': {
+      await POST({action:'requestChat',userId:S.user.id});
+      if(!S.chatRequests.includes(S.user.id))S.chatRequests.push(S.user.id);
+      set({});toast('Request sent! ⏳');break;
+    }
+    case 'cancelChat': {
+      await POST({action:'cancelChat',userId:S.user.id});
+      S.chatRequests=S.chatRequests.filter(id=>id!==S.user.id);
+      set({});break;
+    }
+    case 'approveChat': {
+      const uid=el.dataset.uid;
+      await POST({action:'approveChat',userId:uid});
+      S.chatRequests=S.chatRequests.filter(id=>id!==uid);
+      if(!S.chatApproved.includes(uid))S.chatApproved.push(uid);
+      set({});toast('Member approved ✅');break;
+    }
+    case 'denyChat': {
+      const uid=el.dataset.uid;
+      await POST({action:'denyChat',userId:uid});
+      S.chatRequests=S.chatRequests.filter(id=>id!==uid);
+      set({});toast('Request denied');break;
+    }
+    case 'removeChat': {
+      const uid=el.dataset.uid;
+      await POST({action:'removeChat',userId:uid});
+      S.chatApproved=S.chatApproved.filter(id=>id!==uid);
+      set({});toast('Member removed');break;
+    }
+    case 'toggleMem': set({showMembers:!S.showMembers}); break;
+
+    /* ── send message ── */
+    case 'sendMsg': await doSend(); break;
+
+    /* ── context sheet ── */
+    case 'openCtx': {
+      const msg=S.messages.find(m=>m.id===el.dataset.mid);
+      if(msg){S.ctxMsg=msg;S.emojiOpen=false;set({});}break;
+    }
+    case 'closeCtx':
+    case 'bgClick': {if(S.ctxMsg){S.ctxMsg=null;set({});}break;}
+
+    case 'reactCtx': {
+      const mid=el.dataset.mid,em=el.dataset.em;
+      S.ctxMsg=null;
+      await doReact(mid,em);
+      break;
+    }
+    case 'reactMsg': await doReact(el.dataset.mid,el.dataset.em); break;
+
+    case 'replyMsg': {
+      const msg=S.messages.find(m=>m.id===el.dataset.mid);
+      if(msg){S.replyTo=msg;S.ctxMsg=null;set({});setTimeout(()=>document.getElementById('ci')?.focus(),80);}
+      break;
+    }
+    case 'clearReply': set({replyTo:null}); break;
+
+    case 'deleteMsg': {
+      const mid=el.dataset.mid;
+      await POST({action:'deleteMsg',msgId:mid});
+      S.messages=S.messages.filter(m=>m.id!==mid);
+      S.ctxMsg=null;set({});toast('Message deleted');break;
+    }
+
+    case 'toggleEmoji': set({emojiOpen:!S.emojiOpen,ctxMsg:null}); break;
+    case 'setECat': set({emojiCat:+el.dataset.ci}); break;
+    case 'insertEmoji': {
+      const ci=document.getElementById('ci');
+      if(ci){ci.value+=el.dataset.em;ci.focus();updSendBtn();}break;
+    }
+  }
+});
+
+// keyboard: Enter to send, update send-btn colour
+document.addEventListener('keydown',e=>{if(e.target.id==='ci'&&e.key==='Enter')doSend();});
+document.addEventListener('input',e=>{if(e.target.id==='ci')updSendBtn();});
+function updSendBtn(){
+  const ci=document.getElementById('ci'),sb=document.getElementById('sndbtn');
+  if(!ci||!sb)return;
+  const has=!!ci.value.trim();
+  sb.style.background=has?'#00C853':'#21262d';
+  sb.style.color=has?'#0D1117':'#8b949e';
+}
+
+/* ══════════════════════════════════════════
+   ASYNC ACTIONS
+   ══════════════════════════════════════════ */
+async function doLogin(){
+  const email=document.getElementById('le')?.value?.trim();
+  const pass=document.getElementById('lp')?.value;
+  if(!email||!pass){set({loginErr:'Please fill all fields'});return;}
+  const r=await POST({action:'login',email,password:pass});
+  if(r.ok!==false&&r.user){
+    S.user=r.user;localStorage.setItem('ew_u',JSON.stringify(r.user));
+    S.loginErr='';S.screen='app';S.tab='home';
+    await loadAll();render();
+  }else{set({loginErr:r.error||'Login failed'});}
+}
+
+async function doSignup(){
+  const name=document.getElementById('sn')?.value?.trim();
+  const email=document.getElementById('se')?.value?.trim();
+  const pass=document.getElementById('sp')?.value;
+  const conf=document.getElementById('sc')?.value;
+  if(!name||name.length<2){set({signupErr:'Name must be ≥ 2 characters'});return;}
+  if(!email?.includes('@')){set({signupErr:'Invalid email'});return;}
+  if(!pass||pass.length<6){set({signupErr:'Password must be ≥ 6 characters'});return;}
+  if(pass!==conf){set({signupErr:'Passwords do not match'});return;}
+  const r=await POST({action:'signup',name,email,password:pass});
+  if(r.ok!==false&&r.user){
+    S.user=r.user;localStorage.setItem('ew_u',JSON.stringify(r.user));
+    S.signupErr='';S.screen='app';S.tab='home';
+    await loadAll();render();
+  }else{set({signupErr:r.error||'Signup failed'});}
+}
+
+function doLogout(){
+  stopChatPoll();
+  localStorage.removeItem('ew_u');
+  Object.assign(S,{user:null,polls:[],messages:[],chatApproved:[],chatRequests:[],screen:'login',tab:'home'});
+  render();
+}
+
+async function doSend(){
+  const ci=document.getElementById('ci');
+  const text=ci?.value?.trim();
+  if(!text||!S.user)return;
+  ci.value='';updSendBtn();
+  const t=new Date(),time=`${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;
+  const id='msg'+Date.now();
+  const msg={id,type:'text',userId:S.user.id,userName:S.user.name,text,time,replyTo:S.replyTo,reactions:{}};
+  S.messages.push(msg);
+  S.replyTo=null;S.emojiOpen=false;
+  set({});
+  POST({action:'sendMsg',type:'text',userId:S.user.id,userName:S.user.name,text,replyTo:S.replyTo||null,time});
+}
+
+async function doReact(msgId,emoji){
+  if(!S.user)return;
+  const msg=S.messages.find(m=>m.id===msgId);
+  if(!msg)return;
+  const rx=msg.reactions||{};
+  const hadIt=(rx[emoji]||[]).includes(S.user.id);
+  // strip user from all emojis
+  Object.keys(rx).forEach(em=>{rx[em]=rx[em].filter(id=>id!==S.user.id);});
+  if(!hadIt){if(!rx[emoji])rx[emoji]=[];rx[emoji].push(S.user.id);}
+  msg.reactions=rx;
+  set({});
+  POST({action:'react',msgId,emoji,userId:S.user.id});
+}
+
+/* ══════════════════════════════════════════
+   DATA LOADING
+   ══════════════════════════════════════════ */
+async function loadAll(){
+  const [pr,cr,ur]=await Promise.all([GET('polls'),GET('chat'),GET('users')]);
+  if(pr.polls)   S.polls=pr.polls;
+  if(cr.approved)S.chatApproved=cr.approved;
+  if(cr.pending) S.chatRequests=cr.pending;
+  if(ur.users)   S.users=ur.users;
+}
+
+async function loadChat(){
+  const r=await GET('messages');
+  if(r.messages)S.messages=r.messages;
+  set({});
+}
+
+/* ══════════════════════════════════════════
+   CHAT POLLING (every 5 s)
+   ══════════════════════════════════════════ */
+function startChatPoll(){
+  stopChatPoll();
+  S.chatInterval=setInterval(async()=>{
+    if(S.tab!=='chat'){stopChatPoll();return;}
+    const r=await GET('messages');
+    if(r.messages&&r.messages.length!==S.messages.length){
+      const el=document.getElementById('chatmsgs');
+      const atBot=el&&(el.scrollHeight-el.scrollTop-el.clientHeight<60);
+      S.messages=r.messages;set({});
+      if(atBot)requestAnimationFrame(scrollMsgs);
+    }
+  },5000);
+}
+function stopChatPoll(){if(S.chatInterval){clearInterval(S.chatInterval);S.chatInterval=null;}}
+
+/* ══════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════ */
+async function init(){
+  tickClock();setInterval(tickClock,30000);
+
+  if(GAS==='YOUR_GAS_WEB_APP_URL_HERE'){
+    document.getElementById('app').innerHTML=`
+    <div style="padding:40px 24px;text-align:center;color:#e6edf3">
+      <div style="font-size:48px;margin-bottom:16px">⚙️</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:12px;color:#00C853">Setup Required</div>
+      <div style="font-size:13px;color:#8b949e;line-height:1.8">
+        Open <code style="background:#1c2128;padding:2px 6px;border-radius:4px">index.html</code><br>
+        and replace <code style="background:#1c2128;padding:2px 6px;border-radius:4px">YOUR_GAS_WEB_APP_URL_HERE</code><br>
+        with your deployed GAS URL.
+      </div>
+      <div style="margin-top:20px;background:#161b22;border-radius:12px;padding:16px;text-align:left;font-size:12px;color:#8b949e;line-height:2">
+        <div style="font-weight:700;color:#00C853;margin-bottom:6px;font-size:13px">Quick Steps</div>
+        <div>1. Open Google Sheets → Extensions → Apps Script</div>
+        <div>2. Paste <b style="color:#e6edf3">Code.gs</b>, Save</div>
+        <div>3. Deploy → New Deployment → Web App<br>&nbsp;&nbsp;&nbsp;&nbsp;(Execute as: Me, Who: Anyone)</div>
+        <div>4. Visit <b style="color:#e6edf3">your-url?action=init</b> once to seed data</div>
+        <div>5. Paste the URL in this file (line 2 of the script)</div>
+      </div>
+    </div>`;
+    return;
+  }
+
+  try{
+    const saved=localStorage.getItem('ew_u');
+    if(saved){S.user=JSON.parse(saved);S.screen='app';}
+  }catch{localStorage.removeItem('ew_u');}
+
+  if(S.screen==='app'){await loadAll();}
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
