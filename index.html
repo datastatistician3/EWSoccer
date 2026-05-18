@@ -7,20 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0f14;font-family:'Roboto',sans-serif;display:flex;justify-content:center;padding:20px 0;min-height:100vh}
+html,body{height:100%}
+body{background:#0a0f14;font-family:'Roboto',sans-serif;display:flex;flex-direction:column}
 ::-webkit-scrollbar{display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes barGrow{from{width:0}to{width:var(--w)}}
 
-/* ── layout ── */
-body{padding:0;align-items:flex-start}
-#pw{width:100%;max-width:100%}
-@media(min-width:520px){body{justify-content:center;padding:24px 0}#pw{max-width:400px}}
-.phone{background:#0D1117;border-radius:0;border:none;overflow:hidden;min-height:100svh;display:flex;flex-direction:column}
-@media(min-width:520px){.phone{border-radius:32px;border:2px solid #30363d;min-height:760px;box-shadow:0 24px 80px rgba(0,200,83,.12)}}
+/* ── layout: full-screen mobile, phone-frame on wide screens ── */
+#pw{flex:1;display:flex;flex-direction:column;width:100%}
+.phone{flex:1;display:flex;flex-direction:column;background:#0D1117;overflow:hidden;width:100%}
 .sb{display:none}
-#app{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#app{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+@media(min-width:520px){
+  body{align-items:center;justify-content:flex-start;padding:24px 0}
+  #pw{flex:none;width:400px}
+  .phone{flex:none;border-radius:32px;border:2px solid #30363d;min-height:760px;box-shadow:0 24px 80px rgba(0,200,83,.12)}
+}
 
 /* ── toast ── */
 #tw{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none}
@@ -168,7 +171,7 @@ body{padding:0;align-items:flex-start}
 /* ══════════════════════════════════════════
    ①  CONFIG  — edit these two lines
    ══════════════════════════════════════════ */
-const GAS  = 'https://script.google.com/macros/s/AKfycbz138Mm9x5hrADoyRzVYyLnZHDcnAxwsIpT36Cdwjzf2TjUxz_iigKZc8jtepeYosRu/exec';
+const GAS  = 'YOUR_GAS_WEB_APP_URL_HERE';
 // Logo: put logo.png next to index.html, OR paste a full URL / data-URI
 const LOGO = './logo.png';
 
@@ -1045,11 +1048,11 @@ async function doReact(msgId,emoji){
    DATA LOADING
    ══════════════════════════════════════════ */
 async function loadAll(){
-  const [pr,cr,ur]=await Promise.all([GET('polls'),GET('chat'),GET('users')]);
-  if(pr.polls)   S.polls=pr.polls;
-  if(cr.approved)S.chatApproved=cr.approved;
-  if(cr.pending) S.chatRequests=cr.pending;
-  if(ur.users)   S.users=ur.users;
+  const r=await GET('all');
+  if(r.polls)    S.polls=r.polls;
+  if(r.approved) S.chatApproved=r.approved;
+  if(r.pending)  S.chatRequests=r.pending;
+  if(r.users)    S.users=r.users;
 }
 
 async function loadChat(){
